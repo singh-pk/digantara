@@ -1,0 +1,30 @@
+ * {
+     margin: 0;
+     box-sizing: border-box;
+ }
+
+ #popUp {
+     position: absolute;
+     top: 0;
+     left: 0;
+     background-color: rgba(63, 63, 63, 0.8);
+     color: white;
+     font-family: 'Courier New', Courier, monospace;
+     padding: 0.5rem;
+     border-radius: 10px;
+     display: none;
+     user-select: none;
+ }
+
+ .header {
+     font-size: 0.8rem;
+     margin-bottom: 0.2rem;
+ }
+
+ .subHeader {
+     font-size: 0.9rem;
+ }
+
+ .content {
+     font-weight: bold;
+ }
