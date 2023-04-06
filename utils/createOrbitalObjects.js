@@ -1,4 +1,11 @@
-import { Mesh, MeshBasicMaterial, SphereGeometry } from 'three';
+import {
+  Mesh,
+  MeshBasicMaterial,
+  SphereGeometry,
+  InstancedMesh,
+  Object3D,
+  Color
+} from 'three';
 
 import { ecefToLla } from './ecefToLla';
 import {
@@ -10,18 +17,22 @@ import {
 
 import objects from '../assets/objects.json';
 
-function generateNewBox(color_code) {
-  const boxGeometry = new SphereGeometry(0.1, 50, 50);
-  const boxMaterial = new MeshBasicMaterial({ color: color_code });
-  return new Mesh(boxGeometry, boxMaterial);
+function generateNewInstance(count) {
+  const geometry = new SphereGeometry(0.1, 50, 50);
+  const material = new MeshBasicMaterial();
+  return new InstancedMesh(geometry, material, count);
 }
 
 const plottedPoints = { start: 0, end: 100 };
 
 export function createOrbitalObjects(group, radius) {
-  objects.slice(plottedPoints.start, plottedPoints.end).forEach(d => {
-    const box = generateNewBox(d.color_code);
+  const currentSlice = objects.slice(plottedPoints.start, plottedPoints.end);
 
+  const mesh = generateNewInstance(currentSlice.length);
+
+  const dummy = new Object3D();
+
+  currentSlice.forEach((d, idx) => {
     const { lat, lon, alt } = ecefToLla({
       x: convertKmToM(d.X),
       y: convertKmToM(d.Y),
@@ -32,17 +43,19 @@ export function createOrbitalObjects(group, radius) {
 
     const [x, y, z] = getPostionOnMap(degToRad(lat), degToRad(lon), radius + h);
 
-    box.position.set(x, y, z);
+    dummy.position.set(x, y, z);
 
-    box.lookAt(0, 0, 0);
+    dummy.updateMatrix();
 
-    box.objectId = d['Object ID'];
-    box.time = d['Time (UTC)'];
+    mesh.userData.index = plottedPoints.start + idx;
 
-    group.add(box);
+    mesh.setMatrixAt(idx, dummy.matrix);
+    mesh.setColorAt(idx, new Color(d.color_code));
+
+    group.add(mesh);
   });
 
-  plottedPoints.start = plottedPoints.end;
+  plottedPoints.start = plottedPoints.end + 1;
   plottedPoints.end += 100;
 
   if (plottedPoints.end <= objects.length) {

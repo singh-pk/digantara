@@ -120,11 +120,11 @@ function onLoad() {
     const intersectsLen = intersects.length;
 
     for (let i = 0; i < intersectsLen; i++) {
-      const { objectId, time } = intersects[i].object;
+      const { index } = intersects[i].object.userData;
 
-      if (objectId && time) {
+      if (index && objectId && time) {
         mouse.isHovering = true;
-        setPopUp(objectId, time, mouse);
+        setPopUp(index, mouse);
       }
     }
 
