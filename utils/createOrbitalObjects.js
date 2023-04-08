@@ -23,7 +23,7 @@ function generateNewInstance(count) {
   return new InstancedMesh(geometry, material, count);
 }
 
-const plottedPoints = { start: 0, end: 100 };
+const plottedPoints = { start: 0, end: 480 };
 
 export function createOrbitalObjects(group, radius) {
   const currentSlice = objects.slice(plottedPoints.start, plottedPoints.end);
@@ -44,19 +44,21 @@ export function createOrbitalObjects(group, radius) {
     const [x, y, z] = getPostionOnMap(degToRad(lat), degToRad(lon), radius + h);
 
     dummy.position.set(x, y, z);
-
     dummy.updateMatrix();
-
-    mesh.userData.index = plottedPoints.start + idx;
 
     mesh.setMatrixAt(idx, dummy.matrix);
     mesh.setColorAt(idx, new Color(d.color_code));
-
-    group.add(mesh);
   });
 
-  plottedPoints.start = plottedPoints.end + 1;
-  plottedPoints.end += 100;
+  mesh.userData = {
+    start: plottedPoints.start,
+    objectId: currentSlice[0]['Object ID']
+  };
+
+  group.add(mesh);
+
+  plottedPoints.start = plottedPoints.end;
+  plottedPoints.end += 480;
 
   if (plottedPoints.end <= objects.length) {
     setTimeout(() => {
