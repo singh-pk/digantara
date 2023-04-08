@@ -2,6 +2,7 @@ import './index.css';
 
 import {
   Group,
+  InstancedMesh,
   Mesh,
   PerspectiveCamera,
   Raycaster,
@@ -116,15 +117,22 @@ function onLoad() {
 
     raycaster.setFromCamera(mouse, camera);
 
-    const intersects = raycaster.intersectObjects(group.children);
+    const intersects = raycaster.intersectObjects(
+      group.children.filter(d => d instanceof InstancedMesh)
+    );
     const intersectsLen = intersects.length;
 
     for (let i = 0; i < intersectsLen; i++) {
-      const { index } = intersects[i].object.userData;
+      const { object } = intersects[i];
+      const { opacity } = object.material;
 
-      if (index && objectId && time) {
-        mouse.isHovering = true;
-        setPopUp(index, mouse);
+      if (opacity) {
+        const { index } = object.userData;
+
+        if (index) {
+          mouse.isHovering = true;
+          setPopUp(index, mouse);
+        }
       }
     }
 
@@ -134,12 +142,25 @@ function onLoad() {
   });
 }
 
+const input = document.getElementById('search');
+
+function onChange({ target: { value } }) {
+  for (const mesh of group.children) {
+    if (value.length && mesh.objectId !== Number(value)) {
+      mesh.material.opacity = 0.0;
+    } else if (mesh.material.opacity === 0) {
+      mesh.material.opacity = 1.0;
+    }
+  }
+}
+
 const eventListeners = [
   { elem: canvas, type: 'mousemove', listener: onMouseMove },
   { elem: canvas, type: 'mousedown', listener: onMouseDown },
   { elem: window, type: 'mouseup', listener: onMouseUp },
   { elem: window, type: 'resize', listener: onResize },
-  { elem: window, type: 'load', listener: onLoad }
+  { elem: window, type: 'load', listener: onLoad },
+  { elem: input, type: 'input', listener: onChange }
 ];
 
 eventListeners.forEach(({ elem, type, listener }) => {

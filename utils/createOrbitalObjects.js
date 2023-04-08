@@ -23,7 +23,7 @@ function generateNewInstance(count) {
   return new InstancedMesh(geometry, material, count);
 }
 
-const plottedPoints = { start: 0, end: 100 };
+const plottedPoints = { start: 0, end: 480 };
 
 export function createOrbitalObjects(group, radius) {
   const currentSlice = objects.slice(plottedPoints.start, plottedPoints.end);
@@ -49,6 +49,12 @@ export function createOrbitalObjects(group, radius) {
 
     mesh.userData.index = plottedPoints.start + idx;
 
+    if (!mesh.objectId) {
+      mesh.objectId = d['Object ID'];
+      mesh.material.transparent = true;
+      mesh.material.needsUpdate = true;
+    }
+
     mesh.setMatrixAt(idx, dummy.matrix);
     mesh.setColorAt(idx, new Color(d.color_code));
 
@@ -56,7 +62,7 @@ export function createOrbitalObjects(group, radius) {
   });
 
   plottedPoints.start = plottedPoints.end + 1;
-  plottedPoints.end += 100;
+  plottedPoints.end += 480;
 
   if (plottedPoints.end <= objects.length) {
     setTimeout(() => {
