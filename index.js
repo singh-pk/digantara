@@ -104,6 +104,12 @@ function onResize() {
   renderer.setSize(innerWidth, innerHeight);
 }
 
+function getGroupChildren(fn) {
+  return group.children.filter(
+    d => d instanceof InstancedMesh && (fn?.(d) ?? true)
+  );
+}
+
 function onLoad() {
   createOrbitalObjects(group, RADIUS_EARTH);
 
@@ -118,21 +124,18 @@ function onLoad() {
     raycaster.setFromCamera(mouse, camera);
 
     const intersects = raycaster.intersectObjects(
-      group.children.filter(d => d instanceof InstancedMesh)
+      getGroupChildren(d => d.visible)
     );
+
     const intersectsLen = intersects.length;
 
     for (let i = 0; i < intersectsLen; i++) {
-      const { object } = intersects[i];
-      const { opacity } = object.material;
+      const { object, instanceId } = intersects[i];
+      const { start } = object.userData;
 
-      if (opacity) {
-        const { index } = object.userData;
-
-        if (index) {
-          mouse.isHovering = true;
-          setPopUp(index, mouse);
-        }
+      if (start) {
+        mouse.isHovering = true;
+        setPopUp(start + instanceId, mouse);
       }
     }
 
@@ -145,11 +148,11 @@ function onLoad() {
 const input = document.getElementById('search');
 
 function onChange({ target: { value } }) {
-  for (const mesh of group.children) {
-    if (value.length && mesh.objectId !== Number(value)) {
-      mesh.material.opacity = 0.0;
-    } else if (mesh.material.opacity === 0) {
-      mesh.material.opacity = 1.0;
+  for (const mesh of getGroupChildren()) {
+    if (value.length && mesh.userData.objectId !== Number(value)) {
+      mesh.visible = false;
+    } else if (!mesh.visible) {
+      mesh.visible = true;
     }
   }
 }

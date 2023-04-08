@@ -1,3 +1,5 @@
+import { dateDiff } from './dateDiff';
+
 import objects from '../assets/objects.json';
 
 const popUpEl = document.getElementById('popUp');
@@ -12,7 +14,8 @@ export function setPopUp(index, { offsetX, offsetY }) {
   const object = objects[index];
 
   objectIdEl.innerHTML = object['Object ID'];
-  timeEl.innerHTML = object['Time (UTC)'];
+  timeEl.innerHTML = dateDiff(object['Time (UTC)']);
+
   popUpEl.style.left = convertNumToPx(offsetX);
   popUpEl.style.top = convertNumToPx(offsetY);
   popUpEl.style.display = 'block';

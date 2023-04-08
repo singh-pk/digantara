@@ -44,24 +44,20 @@ export function createOrbitalObjects(group, radius) {
     const [x, y, z] = getPostionOnMap(degToRad(lat), degToRad(lon), radius + h);
 
     dummy.position.set(x, y, z);
-
     dummy.updateMatrix();
-
-    mesh.userData.index = plottedPoints.start + idx;
-
-    if (!mesh.objectId) {
-      mesh.objectId = d['Object ID'];
-      mesh.material.transparent = true;
-      mesh.material.needsUpdate = true;
-    }
 
     mesh.setMatrixAt(idx, dummy.matrix);
     mesh.setColorAt(idx, new Color(d.color_code));
-
-    group.add(mesh);
   });
 
-  plottedPoints.start = plottedPoints.end + 1;
+  mesh.userData = {
+    start: plottedPoints.start,
+    objectId: currentSlice[0]['Object ID']
+  };
+
+  group.add(mesh);
+
+  plottedPoints.start = plottedPoints.end;
   plottedPoints.end += 480;
 
   if (plottedPoints.end <= objects.length) {
