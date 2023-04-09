@@ -29,6 +29,7 @@ export function createOrbitalObjects(group, radius) {
   const currentSlice = objects.slice(plottedPoints.start, plottedPoints.end);
 
   const mesh = generateNewInstance(currentSlice.length);
+  group.add(mesh);
 
   const dummy = new Object3D();
 
@@ -55,14 +56,10 @@ export function createOrbitalObjects(group, radius) {
     objectId: currentSlice[0]['Object ID']
   };
 
-  group.add(mesh);
-
   plottedPoints.start = plottedPoints.end;
   plottedPoints.end += 480;
 
   if (plottedPoints.end <= objects.length) {
-    setTimeout(() => {
-      requestAnimationFrame(() => createOrbitalObjects(group, radius));
-    }, 4);
+    setTimeout(() => createOrbitalObjects(group, radius));
   }
 }

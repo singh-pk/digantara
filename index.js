@@ -111,29 +111,26 @@ function getGroupChildren(fn) {
 }
 
 function onLoad() {
-  createOrbitalObjects(group, RADIUS_EARTH);
-
   const raycaster = new Raycaster();
 
   animate(() => {
     renderer.render(scene, camera);
 
-    removePop();
-    mouse.isHovering = false;
+    if (mouse.x) {
+      removePop();
+      mouse.isHovering = false;
 
-    raycaster.setFromCamera(mouse, camera);
+      raycaster.setFromCamera(mouse, camera);
 
-    const intersects = raycaster.intersectObjects(
-      getGroupChildren(d => d.visible)
-    );
+      const intersects = raycaster.intersectObjects(
+        getGroupChildren(d => d.visible)
+      );
+      const intersectsLen = intersects.length;
 
-    const intersectsLen = intersects.length;
+      for (let i = 0; i < intersectsLen; i++) {
+        const { object, instanceId } = intersects[i];
+        const { start } = object.userData;
 
-    for (let i = 0; i < intersectsLen; i++) {
-      const { object, instanceId } = intersects[i];
-      const { start } = object.userData;
-
-      if (start) {
         mouse.isHovering = true;
         setPopUp(start + instanceId, mouse);
       }
@@ -143,6 +140,8 @@ function onLoad() {
       group.rotation.y += 0.002;
     }
   });
+
+  setTimeout(() => createOrbitalObjects(group, RADIUS_EARTH), 16);
 }
 
 const input = document.getElementById('search');
