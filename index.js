@@ -105,35 +105,35 @@ function onResize() {
 }
 
 function getGroupChildren(fn) {
-  return group.children.filter(
-    d => d instanceof InstancedMesh && (fn?.(d) ?? true)
-  );
+  return fn ? group.children.filter(fn) : group.children;
 }
 
 function onLoad() {
-  createOrbitalObjects(group, RADIUS_EARTH);
-
   const raycaster = new Raycaster();
 
   animate(() => {
     renderer.render(scene, camera);
 
-    removePop();
-    mouse.isHovering = false;
+    if (mouse.x) {
+      removePop();
+      mouse.isHovering = false;
 
-    raycaster.setFromCamera(mouse, camera);
+      raycaster.setFromCamera(mouse, camera);
 
-    const intersects = raycaster.intersectObjects(
-      getGroupChildren(d => d.visible)
-    );
+      const intersects = raycaster.intersectObjects(
+        getGroupChildren(d => d.visible)
+      );
+      const intersectsLen = intersects.length;
 
-    const intersectsLen = intersects.length;
+      for (let i = 0; i < intersectsLen; i++) {
+        const { object, instanceId } = intersects[i];
 
-    for (let i = 0; i < intersectsLen; i++) {
-      const { object, instanceId } = intersects[i];
-      const { start } = object.userData;
+        if (!(object instanceof InstancedMesh)) {
+          break;
+        }
 
-      if (start) {
+        const { start } = object.userData;
+
         mouse.isHovering = true;
         setPopUp(start + instanceId, mouse);
       }
@@ -143,12 +143,14 @@ function onLoad() {
       group.rotation.y += 0.002;
     }
   });
+
+  setTimeout(() => createOrbitalObjects(group, RADIUS_EARTH), 16);
 }
 
 const input = document.getElementById('search');
 
 function onChange({ target: { value } }) {
-  for (const mesh of getGroupChildren()) {
+  for (const mesh of getGroupChildren(d => d instanceof InstancedMesh)) {
     if (value.length && mesh.userData.objectId !== Number(value)) {
       mesh.visible = false;
     } else if (!mesh.visible) {
