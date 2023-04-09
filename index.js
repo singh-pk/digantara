@@ -105,9 +105,7 @@ function onResize() {
 }
 
 function getGroupChildren(fn) {
-  return group.children.filter(
-    d => d instanceof InstancedMesh && (fn?.(d) ?? true)
-  );
+  return fn ? group.children.filter(fn) : group.children;
 }
 
 function onLoad() {
@@ -129,6 +127,11 @@ function onLoad() {
 
       for (let i = 0; i < intersectsLen; i++) {
         const { object, instanceId } = intersects[i];
+
+        if (!(object instanceof InstancedMesh)) {
+          break;
+        }
+
         const { start } = object.userData;
 
         mouse.isHovering = true;
@@ -147,7 +150,7 @@ function onLoad() {
 const input = document.getElementById('search');
 
 function onChange({ target: { value } }) {
-  for (const mesh of getGroupChildren()) {
+  for (const mesh of getGroupChildren(d => d instanceof InstancedMesh)) {
     if (value.length && mesh.userData.objectId !== Number(value)) {
       mesh.visible = false;
     } else if (!mesh.visible) {
